@@ -23,14 +23,12 @@
 %   Column 17:      Axial moment (N-m)
 %   Column 18:      Standard deviation of axial moment (N-m)
 
-% TODO: hard code actual filename
-% data = load("./CRT_data_2023_2_6_11_53.mat"); % n rows, 18 col
-data = data_matrix;
-% data = ones(2,18); % 2 rows, 18 col
+% Hard code actual filename
+load("./CRT_data_2023_2_6_11_53.mat"); % 51 rows, 18 col
+data = data_matrix; % name of big table when loaded from the .mat file
 
 % Get all elevator deflections
 d = data(:,3);  % Elevator deflection (deg)
-% d(1) = 0;
 
 % Only include rows where d == 0
 deflections = [-18, 0, 18];
@@ -72,21 +70,24 @@ for i=1:length(deflections)
     CM = M./(q*S*c);  % Moment Coefficient
     
     % Graphs
-    figure(1)
-    plot(a, CL, "*", "Color",colors(i))
+    figure(1) % CL vs a
+    plot(a, CL, "*", "Color",colors(i), "DisplayName","elevator = " + deflections(i))
     title("CL vs a");xlabel("a (deg)");ylabel("CL");
+    legend('show','location','best');
     hold on;
     grid on;
     
-    figure(2)
-    plot(a, CD, "*","Color",colors(i))
+    figure(2) % CD vs a
+    plot(a, CD, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i))
     title("CD vs a");xlabel("a (deg)");ylabel("CD");
+    legend('show','location','best');
     hold on;
     grid on;
     
-    figure(3)
-    plot(a, CM, "*","Color",colors(i))
+    figure(3) % CM vs a
+    plot(a, CM, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i))
     title("CM vs a");xlabel("a (deg)");ylabel("CM");
+    legend('show','location','best');
     hold on;
     grid on;
 end
