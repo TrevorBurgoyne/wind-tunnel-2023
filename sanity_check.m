@@ -37,13 +37,13 @@ for i=1:length(deflections)
     data = data_matrix(find(d==deflections(i)),:);
     
     % Label data for clarity
-    a   = data(:,2);  % AoA (deg)
-    rho = data(:,5);  % Density (kg/m^3)
-    v   = data(:,6);  % Air speed (m/s)
+    a   = data(:,2);   % AoA (deg)
+    rho = data(:,5);   % Density (kg/m^3)
+    v   = data(:,6);   % Air speed (m/s)
     Z   = -data(:,7);  % Normal Force (N)
     X   = -data(:,11); % Axial Force (N)
-    M_n = data(:,13); % Normal moment (N*m)
-    M_t = data(:,15); % Traverse moment (N*m)
+    M_n = data(:,13);  % Normal moment (N*m)
+    M_t = data(:,15);  % Traverse moment (N*m)
     
     % Ms (sting moments) is the sum of normal and traverse moments
     Ms = M_n + M_t; % (N*m)
@@ -62,7 +62,7 @@ for i=1:length(deflections)
     L = X.*sind(a) - Z.*cosd(a);  % Lift
     D = -X.*cosd(a) - Z.*sind(a); % Drag
     M = Ms + z_cg*X + x_cg*Z;     % Moment
-    q = .5*rho.*(v.^2);           % Dynamic pressure 
+    q = .5*rho.*(v.^2);           % Dynamic pressure ()
     
     % Next, Calculate non-dimensional coefficients
     CL = L./(q*S);    % Coefficient of Lift
@@ -71,23 +71,74 @@ for i=1:length(deflections)
     
     % Graphs
     figure(1) % CL vs a
-    plot(a, CL, "*", "Color",colors(i), "DisplayName","elevator = " + deflections(i))
-    title("CL vs a");xlabel("a (deg)");ylabel("CL");
+    plot(a, CL, "*", "Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_L$ vs $\alpha$ (deg)","Interpreter","latex");xlabel("$\alpha$ (deg)","Interpreter","latex");ylabel("$C_L$","Interpreter","latex");
     legend('show','location','best');
     hold on;
     grid on;
     
     figure(2) % CD vs a
-    plot(a, CD, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i))
-    title("CD vs a");xlabel("a (deg)");ylabel("CD");
+    plot(a, CD, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_D$ vs $\alpha$ (deg)","Interpreter","latex");xlabel("$\alpha$ (deg)","Interpreter","latex");ylabel("$C_D$","Interpreter","latex");
     legend('show','location','best');
     hold on;
     grid on;
     
     figure(3) % CM vs a
-    plot(a, CM, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i))
-    title("CM vs a");xlabel("a (deg)");ylabel("CM");
+    plot(a, CM, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_M$ vs $\alpha$ (deg)","Interpreter","latex");xlabel("$\alpha$ (deg)","Interpreter","latex");ylabel("$C_M$","Interpreter","latex");
     legend('show','location','best');
     hold on;
     grid on;
+    
+    figure(4) % CD vs CL
+    plot(CL, CD, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_D$ vs $C_L$","Interpreter","latex");xlabel("$C_L$","Interpreter","latex");ylabel("$C_D$","Interpreter","latex");
+    legend('show','location','best');
+    hold on;
+    grid on;
+    
+    figure(5) % CM vs CL
+    plot(CL, CM, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_M$ vs $C_L$","Interpreter","latex");xlabel("$C_L$","Interpreter","latex");ylabel("$C_M$","Interpreter","latex");
+    legend('show','location','best');
+    hold on;
+    grid on;
+    
+    
+    % FASER given properties
+    Sw = 8.28;  % ft^2, wing area
+    l = 4.31;  % ft, length of fuselage
+    c = 1.42;  % ft, mean geometric chord
+    cg = 0.25; % normalized x location of the center of gravity
+    
+    % conversion
+    sqft2sqm = .092903; % m^2 per ft^2
+    
+    % do a linear fit
+    range = 6:length(CL); % linear regime
+    p = polyfit(CL(range), CM(range), 1);
+    slope_test = p(1);       % slope
+    CM_0 = p(2);             % intercept
+    np = cg - slope_test;    % neutral point
+    CL_max = max(CL(range)); % Max CL for this deflection
+    slope = CM_0/-CL_max;    % theoretical slope for trim at CL_max
+    if deflections(i) == 18
+        w_aft  = mean(q)*CL_max*(sqft2sqm*Sw); % N, max weight
+        cg_aft = np + slope;
+    elseif deflections(i) == -18
+        w_forward  = mean(q)*CL_max*(sqft2sqm*Sw);
+        cg_forward = np + slope;
+    end
 end
+
+%% HW 3 Q2: SM from wind tunnel data
+
+% Find the forward/aft limits of the center of gravity of FASER.
+np         % neutral point
+cg_aft     % Aft limit at +18 degrees
+w_aft      % max weight (N) at aft limit
+cg_forward % forward limit at -18 degrees
+w_forward  % max weight (N) at forward limit
+
+% Find the max weight when flying at the forward/aft limits.
