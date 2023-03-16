@@ -1,0 +1,395 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>sanity_check</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-03-16"><meta name="DC.source" content="sanity_check.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Wind Tunnel Lab Sanity Check</a></li><li><a href="#2">HW 3 Q2: SM from wind tunnel data</a></li></ul></div><h2 id="1">Wind Tunnel Lab Sanity Check</h2><p>Created 6 Feb 2023, AEM 4303W Updated 16 Mar 2023 Trevor Burgoyne</p><pre class="codeinput"><span class="comment">% From CRT_data_parser.m, we generate a .mat file with the following data:</span>
+
+<span class="comment">%   Column  1:      Row number</span>
+<span class="comment">%   Column  2:      Angle of attack (deg)</span>
+<span class="comment">%   Column  3:      Elevator deflection (deg)</span>
+<span class="comment">%   Column  4:      Rudder deflection (rad)</span>
+<span class="comment">%   Column  5:      Air density (kg/m^3)</span>
+<span class="comment">%   Column  6:      Air speed (m/s)</span>
+<span class="comment">%   Column  7:      Normal force (N)</span>
+<span class="comment">%   Column  8:      Standard deviation of normal force (N)</span>
+<span class="comment">%   Column  9:      Transverse force (N),</span>
+<span class="comment">%   Column 10:      Standard deviation of transverse force (N)</span>
+<span class="comment">%   Column 11:      Axial force (N), "X"</span>
+<span class="comment">%   Column 12:      Standard deviation of axial force (N)</span>
+<span class="comment">%   Column 13:      Normal Moment (N-m)</span>
+<span class="comment">%   Column 14:      Standard deviation of normal moment (N-m)</span>
+<span class="comment">%   Column 15:      Transverse moment (N-m)</span>
+<span class="comment">%   Column 16:      Standard deviation of transverse moment (N-m)</span>
+<span class="comment">%   Column 17:      Axial moment (N-m)</span>
+<span class="comment">%   Column 18:      Standard deviation of axial moment (N-m)</span>
+
+<span class="comment">% Hard code actual filename</span>
+load(<span class="string">"./CRT_data_2023_2_6_11_53.mat"</span>); <span class="comment">% 51 rows, 18 col</span>
+data = data_matrix; <span class="comment">% name of big table when loaded from the .mat file</span>
+
+<span class="comment">% Get all elevator deflections</span>
+d = data(:,3);  <span class="comment">% Elevator deflection (deg)</span>
+
+<span class="comment">% Only include rows where d == 0</span>
+deflections = [-18, 0, 18];
+colors = [<span class="string">"r"</span>, <span class="string">"g"</span>, <span class="string">"b"</span>];
+<span class="keyword">for</span> i=1:length(deflections)
+    data = data_matrix(find(d==deflections(i)),:);
+
+    <span class="comment">% Label data for clarity</span>
+    a   = data(:,2);   <span class="comment">% AoA (deg)</span>
+    rho = data(:,5);   <span class="comment">% Density (kg/m^3)</span>
+    v   = data(:,6);   <span class="comment">% Air speed (m/s)</span>
+    Z   = -data(:,7);  <span class="comment">% Normal Force (N)</span>
+    X   = -data(:,11); <span class="comment">% Axial Force (N)</span>
+    M_n = data(:,13);  <span class="comment">% Normal moment (N*m)</span>
+    M_t = data(:,15);  <span class="comment">% Traverse moment (N*m)</span>
+
+    <span class="comment">% Ms (sting moments) is the sum of normal and traverse moments</span>
+    Ms = M_n + M_t; <span class="comment">% (N*m)</span>
+
+    <span class="comment">% Given values:</span>
+    c    = .2129;              <span class="comment">% chord (m)</span>
+    b_le = .9;                 <span class="comment">% Leading edge span (m)</span>
+    b_te = .985;               <span class="comment">% Trailing edge span (m)</span>
+    S    = .5*c*(b_le + b_te); <span class="comment">% Wing area (m^2)</span>
+    x_cg = .016;               <span class="comment">% x location of center of gravity (m)</span>
+    z_cg = .05;                <span class="comment">% z location of center of gravity (m)</span>
+
+    <span class="comment">% We want: CL vs a, CL vs CD, and CM vs a</span>
+    <span class="comment">% First, we calculate L, D, M, and q (dynamic pressure) for each alpha.</span>
+
+    L = X.*sind(a) - Z.*cosd(a);  <span class="comment">% Lift</span>
+    D = -X.*cosd(a) - Z.*sind(a); <span class="comment">% Drag</span>
+    M = Ms + z_cg*X + x_cg*Z;     <span class="comment">% Moment</span>
+    q = .5*rho.*(v.^2);           <span class="comment">% Dynamic pressure (Pa)</span>
+
+    <span class="comment">% Next, Calculate non-dimensional coefficients</span>
+    CL = L./(q*S);    <span class="comment">% Coefficient of Lift</span>
+    CD = D./(q*S);    <span class="comment">% Coefficient of Drag</span>
+    CM = M./(q*S*c);  <span class="comment">% Moment Coefficient</span>
+
+    <span class="comment">% Graphs</span>
+    figure(1) <span class="comment">% CL vs a</span>
+    plot(a, CL, <span class="string">"*"</span>, <span class="string">"Color"</span>,colors(i), <span class="string">"DisplayName"</span>,<span class="string">"elevator = "</span> + deflections(i) + <span class="string">" degrees"</span>)
+    title(<span class="string">"$C_L$ vs $\alpha$ (deg)"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);xlabel(<span class="string">"$\alpha$ (deg)"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);ylabel(<span class="string">"$C_L$"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);
+    legend(<span class="string">'show'</span>,<span class="string">'location'</span>,<span class="string">'best'</span>);
+    hold <span class="string">on</span>;
+    grid <span class="string">on</span>;
+
+    figure(2) <span class="comment">% CD vs a</span>
+    plot(a, CD, <span class="string">"*"</span>,<span class="string">"Color"</span>,colors(i), <span class="string">"DisplayName"</span>,<span class="string">"elevator = "</span> + deflections(i) + <span class="string">" degrees"</span>)
+    title(<span class="string">"$C_D$ vs $\alpha$ (deg)"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);xlabel(<span class="string">"$\alpha$ (deg)"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);ylabel(<span class="string">"$C_D$"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);
+    legend(<span class="string">'show'</span>,<span class="string">'location'</span>,<span class="string">'best'</span>);
+    hold <span class="string">on</span>;
+    grid <span class="string">on</span>;
+
+    figure(3) <span class="comment">% CM vs a</span>
+    plot(a, CM, <span class="string">"*"</span>,<span class="string">"Color"</span>,colors(i), <span class="string">"DisplayName"</span>,<span class="string">"elevator = "</span> + deflections(i) + <span class="string">" degrees"</span>)
+    title(<span class="string">"$C_M$ vs $\alpha$ (deg)"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);xlabel(<span class="string">"$\alpha$ (deg)"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);ylabel(<span class="string">"$C_M$"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);
+    legend(<span class="string">'show'</span>,<span class="string">'location'</span>,<span class="string">'best'</span>);
+    hold <span class="string">on</span>;
+    grid <span class="string">on</span>;
+
+    figure(4) <span class="comment">% CD vs CL</span>
+    plot(CL, CD, <span class="string">"*"</span>,<span class="string">"Color"</span>,colors(i), <span class="string">"DisplayName"</span>,<span class="string">"elevator = "</span> + deflections(i) + <span class="string">" degrees"</span>)
+    title(<span class="string">"$C_D$ vs $C_L$"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);xlabel(<span class="string">"$C_L$"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);ylabel(<span class="string">"$C_D$"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);
+    legend(<span class="string">'show'</span>,<span class="string">'location'</span>,<span class="string">'best'</span>);
+    hold <span class="string">on</span>;
+    grid <span class="string">on</span>;
+
+    figure(5) <span class="comment">% CM vs CL</span>
+    plot(CL, CM, <span class="string">"*"</span>,<span class="string">"Color"</span>,colors(i), <span class="string">"DisplayName"</span>,<span class="string">"elevator = "</span> + deflections(i) + <span class="string">" degrees"</span>)
+    title(<span class="string">"$C_M$ vs $C_L$"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);xlabel(<span class="string">"$C_L$"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);ylabel(<span class="string">"$C_M$"</span>,<span class="string">"Interpreter"</span>,<span class="string">"latex"</span>);
+    legend(<span class="string">'show'</span>,<span class="string">'location'</span>,<span class="string">'best'</span>);
+    hold <span class="string">on</span>;
+    grid <span class="string">on</span>;
+
+
+    <span class="comment">% FASER given properties</span>
+    Sw = 8.28;  <span class="comment">% ft^2, wing area</span>
+    l = 4.31;  <span class="comment">% ft, length of fuselage</span>
+    c = 1.42;  <span class="comment">% ft, mean geometric chord</span>
+    cg = 0.25; <span class="comment">% normalized x location of the center of gravity</span>
+
+    <span class="comment">% conversion</span>
+    sqft2sqm = .092903; <span class="comment">% m^2 per ft^2</span>
+
+    <span class="comment">% do a linear fit</span>
+    range = 6:length(CL); <span class="comment">% linear regime</span>
+    p = polyfit(CL(range), CM(range), 1);
+    slope_test = p(1);       <span class="comment">% slope</span>
+    CM_0 = p(2);             <span class="comment">% intercept</span>
+    np = cg - slope_test;    <span class="comment">% neutral point</span>
+    CL_max = max(CL(range)); <span class="comment">% Max CL for this deflection</span>
+    slope = CM_0/-CL_max;    <span class="comment">% theoretical slope for trim at CL_max</span>
+    <span class="keyword">if</span> deflections(i) == -18
+        w_forward  = mean(q)*CL_max*(sqft2sqm*Sw); <span class="comment">% N, max weight</span>
+        cg_forward = np + slope;
+    <span class="keyword">elseif</span> deflections(i) == 0
+        CL_max_0 = CL_max; <span class="comment">% save for later</span>
+    <span class="keyword">elseif</span> deflections(i) == 18
+        <span class="keyword">if</span> CM_0 &lt; 0
+            cg_aft = np; <span class="comment">% There must exist some deflection where CM_0 = 0</span>
+        <span class="keyword">else</span>
+            cg_aft = np + slope;
+        <span class="keyword">end</span>
+        <span class="comment">% Use CL_max at 0 deflection since CM_0 at 0 delections ~= 0</span>
+        w_aft  = mean(q)*CL_max_0*(sqft2sqm*Sw);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="sanity_check_01.png" alt=""> <img vspace="5" hspace="5" src="sanity_check_02.png" alt=""> <img vspace="5" hspace="5" src="sanity_check_03.png" alt=""> <img vspace="5" hspace="5" src="sanity_check_04.png" alt=""> <img vspace="5" hspace="5" src="sanity_check_05.png" alt=""> <h2 id="2">HW 3 Q2: SM from wind tunnel data</h2><pre class="codeinput"><span class="comment">% Find the forward/aft limits of the center of gravity of FASER.</span>
+np         <span class="comment">% neutral point</span>
+cg_aft     <span class="comment">% Aft limit == neutral point (there exists a deflection such that CM_0=0 since CM_0 for 18 degrees is negative)</span>
+w_aft      <span class="comment">% max weight (N) at aft limit</span>
+cg_forward <span class="comment">% forward limit at -18 degrees</span>
+w_forward  <span class="comment">% max weight (N) at forward limit</span>
+
+<span class="comment">% Find the max weight when flying at the forward/aft limits.</span>
+</pre><pre class="codeoutput">
+np =
+
+    0.4601
+
+
+cg_aft =
+
+    0.4601
+
+
+w_aft =
+
+   35.1381
+
+
+cg_forward =
+
+    0.1611
+
+
+w_forward =
+
+   30.3218
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Wind Tunnel Lab Sanity Check
+% Created 6 Feb 2023, AEM 4303W
+% Updated 16 Mar 2023
+% Trevor Burgoyne
+
+% From CRT_data_parser.m, we generate a .mat file with the following data:
+
+%   Column  1:      Row number
+%   Column  2:      Angle of attack (deg)
+%   Column  3:      Elevator deflection (deg)
+%   Column  4:      Rudder deflection (rad)
+%   Column  5:      Air density (kg/m^3)
+%   Column  6:      Air speed (m/s)
+%   Column  7:      Normal force (N)
+%   Column  8:      Standard deviation of normal force (N)
+%   Column  9:      Transverse force (N), 
+%   Column 10:      Standard deviation of transverse force (N)
+%   Column 11:      Axial force (N), "X"
+%   Column 12:      Standard deviation of axial force (N)
+%   Column 13:      Normal Moment (N-m)
+%   Column 14:      Standard deviation of normal moment (N-m)
+%   Column 15:      Transverse moment (N-m)
+%   Column 16:      Standard deviation of transverse moment (N-m)
+%   Column 17:      Axial moment (N-m)
+%   Column 18:      Standard deviation of axial moment (N-m)
+
+% Hard code actual filename
+load("./CRT_data_2023_2_6_11_53.mat"); % 51 rows, 18 col
+data = data_matrix; % name of big table when loaded from the .mat file
+
+% Get all elevator deflections
+d = data(:,3);  % Elevator deflection (deg)
+
+% Only include rows where d == 0
+deflections = [-18, 0, 18];
+colors = ["r", "g", "b"];
+for i=1:length(deflections)
+    data = data_matrix(find(d==deflections(i)),:);
+    
+    % Label data for clarity
+    a   = data(:,2);   % AoA (deg)
+    rho = data(:,5);   % Density (kg/m^3)
+    v   = data(:,6);   % Air speed (m/s)
+    Z   = -data(:,7);  % Normal Force (N)
+    X   = -data(:,11); % Axial Force (N)
+    M_n = data(:,13);  % Normal moment (N*m)
+    M_t = data(:,15);  % Traverse moment (N*m)
+    
+    % Ms (sting moments) is the sum of normal and traverse moments
+    Ms = M_n + M_t; % (N*m)
+    
+    % Given values:
+    c    = .2129;              % chord (m)
+    b_le = .9;                 % Leading edge span (m)
+    b_te = .985;               % Trailing edge span (m)
+    S    = .5*c*(b_le + b_te); % Wing area (m^2)
+    x_cg = .016;               % x location of center of gravity (m)
+    z_cg = .05;                % z location of center of gravity (m)
+    
+    % We want: CL vs a, CL vs CD, and CM vs a
+    % First, we calculate L, D, M, and q (dynamic pressure) for each alpha.
+    
+    L = X.*sind(a) - Z.*cosd(a);  % Lift
+    D = -X.*cosd(a) - Z.*sind(a); % Drag
+    M = Ms + z_cg*X + x_cg*Z;     % Moment
+    q = .5*rho.*(v.^2);           % Dynamic pressure (Pa)
+    
+    % Next, Calculate non-dimensional coefficients
+    CL = L./(q*S);    % Coefficient of Lift
+    CD = D./(q*S);    % Coefficient of Drag
+    CM = M./(q*S*c);  % Moment Coefficient
+    
+    % Graphs
+    figure(1) % CL vs a
+    plot(a, CL, "*", "Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_L$ vs $\alpha$ (deg)","Interpreter","latex");xlabel("$\alpha$ (deg)","Interpreter","latex");ylabel("$C_L$","Interpreter","latex");
+    legend('show','location','best');
+    hold on;
+    grid on;
+    
+    figure(2) % CD vs a
+    plot(a, CD, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_D$ vs $\alpha$ (deg)","Interpreter","latex");xlabel("$\alpha$ (deg)","Interpreter","latex");ylabel("$C_D$","Interpreter","latex");
+    legend('show','location','best');
+    hold on;
+    grid on;
+    
+    figure(3) % CM vs a
+    plot(a, CM, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_M$ vs $\alpha$ (deg)","Interpreter","latex");xlabel("$\alpha$ (deg)","Interpreter","latex");ylabel("$C_M$","Interpreter","latex");
+    legend('show','location','best');
+    hold on;
+    grid on;
+    
+    figure(4) % CD vs CL
+    plot(CL, CD, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_D$ vs $C_L$","Interpreter","latex");xlabel("$C_L$","Interpreter","latex");ylabel("$C_D$","Interpreter","latex");
+    legend('show','location','best');
+    hold on;
+    grid on;
+    
+    figure(5) % CM vs CL
+    plot(CL, CM, "*","Color",colors(i), "DisplayName","elevator = " + deflections(i) + " degrees")
+    title("$C_M$ vs $C_L$","Interpreter","latex");xlabel("$C_L$","Interpreter","latex");ylabel("$C_M$","Interpreter","latex");
+    legend('show','location','best');
+    hold on;
+    grid on;
+    
+    
+    % FASER given properties
+    Sw = 8.28;  % ft^2, wing area
+    l = 4.31;  % ft, length of fuselage
+    c = 1.42;  % ft, mean geometric chord
+    cg = 0.25; % normalized x location of the center of gravity
+    
+    % conversion
+    sqft2sqm = .092903; % m^2 per ft^2
+    
+    % do a linear fit
+    range = 6:length(CL); % linear regime
+    p = polyfit(CL(range), CM(range), 1);
+    slope_test = p(1);       % slope
+    CM_0 = p(2);             % intercept
+    np = cg - slope_test;    % neutral point
+    CL_max = max(CL(range)); % Max CL for this deflection
+    slope = CM_0/-CL_max;    % theoretical slope for trim at CL_max
+    if deflections(i) == -18
+        w_forward  = mean(q)*CL_max*(sqft2sqm*Sw); % N, max weight
+        cg_forward = np + slope;
+    elseif deflections(i) == 0
+        CL_max_0 = CL_max; % save for later
+    elseif deflections(i) == 18
+        if CM_0 < 0
+            cg_aft = np; % There must exist some deflection where CM_0 = 0
+        else
+            cg_aft = np + slope;
+        end
+        % Use CL_max at 0 deflection since CM_0 at 0 delections ~= 0
+        w_aft  = mean(q)*CL_max_0*(sqft2sqm*Sw);
+    end
+end
+
+%% HW 3 Q2: SM from wind tunnel data
+
+% Find the forward/aft limits of the center of gravity of FASER.
+np         % neutral point
+cg_aft     % Aft limit == neutral point (there exists a deflection such that CM_0=0 since CM_0 for 18 degrees is negative)
+w_aft      % max weight (N) at aft limit
+cg_forward % forward limit at -18 degrees
+w_forward  % max weight (N) at forward limit
+
+% Find the max weight when flying at the forward/aft limits.
+
+##### SOURCE END #####
+--></body></html>

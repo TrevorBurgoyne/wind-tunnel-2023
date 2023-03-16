@@ -1,5 +1,6 @@
 %% Wind Tunnel Lab Sanity Check
-% 6 Feb 2023, AEM 4303W
+% Created 6 Feb 2023, AEM 4303W
+% Updated 16 Mar 2023
 % Trevor Burgoyne
 
 % From CRT_data_parser.m, we generate a .mat file with the following data:
@@ -62,7 +63,7 @@ for i=1:length(deflections)
     L = X.*sind(a) - Z.*cosd(a);  % Lift
     D = -X.*cosd(a) - Z.*sind(a); % Drag
     M = Ms + z_cg*X + x_cg*Z;     % Moment
-    q = .5*rho.*(v.^2);           % Dynamic pressure ()
+    q = .5*rho.*(v.^2);           % Dynamic pressure (Pa)
     
     % Next, Calculate non-dimensional coefficients
     CL = L./(q*S);    % Coefficient of Lift
@@ -123,12 +124,19 @@ for i=1:length(deflections)
     np = cg - slope_test;    % neutral point
     CL_max = max(CL(range)); % Max CL for this deflection
     slope = CM_0/-CL_max;    % theoretical slope for trim at CL_max
-    if deflections(i) == 18
-        w_aft  = mean(q)*CL_max*(sqft2sqm*Sw); % N, max weight
-        cg_aft = np + slope;
-    elseif deflections(i) == -18
-        w_forward  = mean(q)*CL_max*(sqft2sqm*Sw);
+    if deflections(i) == -18
+        w_forward  = mean(q)*CL_max*(sqft2sqm*Sw); % N, max weight
         cg_forward = np + slope;
+    elseif deflections(i) == 0
+        CL_max_0 = CL_max; % save for later
+    elseif deflections(i) == 18
+        if CM_0 < 0
+            cg_aft = np; % There must exist some deflection where CM_0 = 0
+        else
+            cg_aft = np + slope;
+        end
+        % Use CL_max at 0 deflection since CM_0 at 0 delections ~= 0
+        w_aft  = mean(q)*CL_max_0*(sqft2sqm*Sw);
     end
 end
 
@@ -136,7 +144,7 @@ end
 
 % Find the forward/aft limits of the center of gravity of FASER.
 np         % neutral point
-cg_aft     % Aft limit at +18 degrees
+cg_aft     % Aft limit == neutral point (there exists a deflection such that CM_0=0 since CM_0 for 18 degrees is negative)
 w_aft      % max weight (N) at aft limit
 cg_forward % forward limit at -18 degrees
 w_forward  % max weight (N) at forward limit
