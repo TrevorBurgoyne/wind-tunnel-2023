@@ -33,7 +33,16 @@ d = data(:,3);  % Elevator deflection (deg)
 
 % Only include rows where d == 0
 deflections = [-18, 0, 18];
+n_deflections = length(deflections);
+n_angles = 17;
 colors = ["r", "g", "b"];
+CM_0_by_deflection = zeros(1,n_deflections);
+a_arr = zeros(n_angles, n_deflections);
+CL_arr = zeros(n_angles, n_deflections);
+CD_arr = zeros(n_angles, n_deflections);
+CM_arr = zeros(n_angles, n_deflections);
+SM_arr = zeros(1,n_deflections);
+np_arr = zeros(1,n_deflections);
 for i=1:length(deflections)
     data = data_matrix(find(d==deflections(i)),:);
     
@@ -110,7 +119,7 @@ for i=1:length(deflections)
     % FASER given properties
     Sw = 8.28;  % ft^2, wing area
     l = 4.31;  % ft, length of fuselage
-    c = 1.42;  % ft, mean geometric chord
+    % c = 1.42;  % ft, mean geometric chord
     cg = 0.25; % normalized x location of the center of gravity
     
     % conversion
@@ -121,6 +130,7 @@ for i=1:length(deflections)
     p = polyfit(CL(range), CM(range), 1);
     slope_test = p(1);       % slope
     CM_0 = p(2);             % intercept
+    CM_0_by_deflection(i) = CM_0;
     np = cg - slope_test;    % neutral point
     CL_max = max(CL(range)); % Max CL for this deflection
     slope = CM_0/-CL_max;    % theoretical slope for trim at CL_max
@@ -138,6 +148,14 @@ for i=1:length(deflections)
         % Use CL_max at 0 deflection since CM_0 at 0 delections ~= 0
         w_aft  = mean(q)*CL_max_0*(sqft2sqm*Sw);
     end
+    
+    % Store arrays by deflection angle
+    a_arr(:,i) = a;
+    CL_arr(:,i) = CL;
+    CD_arr(:,i) = CD;
+    CM_arr(:,i) = CM;
+    SM_arr(i) = -slope;
+    np_arr(i) = np;
 end
 
 %% HW 3 Q2: SM from wind tunnel data
@@ -150,3 +168,48 @@ cg_forward % forward limit at -18 degrees
 w_forward  % max weight (N) at forward limit
 
 % Find the max weight when flying at the forward/aft limits.
+
+%% Lab Report
+fit = polyfit(deflections, CM_0_by_deflection, 1);
+elevator_power = fit(1);
+
+
+
+% +15 deflection
+cm_mod = -3*elevator_power;
+CM_18 = CM_arr(:,3);
+CL_18 = CL_arr(:,3);
+a_15 = a_arr(:,3);
+CM_15 = CM_18 + cm_mod;
+% Pitch Stiffness
+fit = polyfit(a_15(range), CM_15(range), 1);
+cm_a_15 = fit(1)
+% Static margin
+fit = polyfit(CL_18(range), CM_15(range), 1);
+CM_0_15 = fit(2);
+CL_max_15 = max(CL_18(range)); % Max CL for this deflection
+sm_15 = CM_0_15/CL_max_15    % theoretical slope for trim at CL_max
+
+% -15 deflection
+cm_mod = 3*elevator_power;
+CM_neg_18 = CM_arr(:,1);
+CL_neg_18 = CL_arr(:,1);
+a_neg_15 = a_arr(:,1);
+CM_neg_15 = CM_neg_18 + cm_mod;
+% Pitch Stiffness
+fit = polyfit(a_neg_15(range), CM_neg_15(range), 1);
+cm_a_neg_15 = fit(1)
+% Static margin
+fit = polyfit(CL_neg_18(range), CM_neg_15(range), 1);
+CM_0_neg_15 = fit(2);
+CL_max_neg_15 = max(CL_neg_18(range)); % Max CL for this deflection
+sm_neg_15 = CM_0_neg_15/CL_max_neg_15    % theoretical slope for trim at CL_max
+
+
+
+
+
+
+
+
+
