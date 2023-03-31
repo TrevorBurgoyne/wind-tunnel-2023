@@ -170,12 +170,14 @@ end
 % Find the max weight when flying at the forward/aft limits.
 
 %% Glide
+h = 6.096; % km, highest altitude
 AR = 4.778; % Aspect ratio
 e = 1.78*(1 - .045*(AR^.68)) - .64; % oswald efficiency
 k = 1/(pi*AR*e);
 CD_0_arr = CD_arr(range,:) - (k^2).*CL_arr(range,:);
 CD_0 = mean(mean(CD_0_arr));
-CL_glide = sqrt(CD_0 / k); % CL for max glide
+CL_glide = sqrt(CD_0 / k) % CL for max glide
+Glide_distance = (CL_glide / (2*CD_0))*h % km, max glide distance
 
 %% Lab Report
 fit = polyfit(deflections, CM_0_by_deflection, 1);
