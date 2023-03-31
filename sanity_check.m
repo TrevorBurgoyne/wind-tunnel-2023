@@ -161,13 +161,21 @@ end
 %% HW 3 Q2: SM from wind tunnel data
 
 % Find the forward/aft limits of the center of gravity of FASER.
-np         % neutral point
-cg_aft     % Aft limit == neutral point (there exists a deflection such that CM_0=0 since CM_0 for 18 degrees is negative)
-w_aft      % max weight (N) at aft limit
-cg_forward % forward limit at -18 degrees
-w_forward  % max weight (N) at forward limit
+% np         % neutral point
+% cg_aft     % Aft limit == neutral point (there exists a deflection such that CM_0=0 since CM_0 for 18 degrees is negative)
+% w_aft      % max weight (N) at aft limit
+% cg_forward % forward limit at -18 degrees
+% w_forward  % max weight (N) at forward limit
 
 % Find the max weight when flying at the forward/aft limits.
+
+%% Glide
+AR = 4.778; % Aspect ratio
+e = 1.78*(1 - .045*(AR^.68)) - .64; % oswald efficiency
+k = 1/(pi*AR*e);
+CD_0_arr = CD_arr(range,:) - (k^2).*CL_arr(range,:);
+CD_0 = mean(mean(CD_0_arr));
+CL_glide = sqrt(CD_0 / k); % CL for max glide
 
 %% Lab Report
 fit = polyfit(deflections, CM_0_by_deflection, 1);
@@ -205,11 +213,18 @@ CM_0_neg_15 = fit(2);
 CL_max_neg_15 = max(CL_neg_18(range)); % Max CL for this deflection
 sm_neg_15 = CM_0_neg_15/CL_max_neg_15    % theoretical slope for trim at CL_max
 
+%% Forward limit of cg
+np = .4603; % Average location of neutral point
+slope = CM_0_neg_15/-CL_glide; % theoretical slope for trim at CL_glide
+cg_forward = np + slope
 
+%% Max weight, Min speed
+rho_min = 0.6601; % kg/m^3, air density at 20,000ft
+rho_max = 1.225;  % kg/m^3, air density at sea level
+v_max = 45; % m/s, FASER max speed (elevator flutter)
+w_min = 87.72; % N, FASER's own weight
 
-
-
-
-
-
+v_min = sqrt((2*w_min)/(rho_max*CL_glide*Sw*sqft2sqm)) % min trimmable speed, m/s
+w_max = .5*rho_min*(v_max^2)*CL_glide*Sw*sqft2sqm % max total weight, N
+max_payload = w_max - w_min % max payload, N
 
